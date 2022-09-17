@@ -52,14 +52,17 @@ def create_app(test_config=None):
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                
                 ## todo here:
                 # copy file saved above and pass it to the AMOLED function
                 # store this file
                 # render a site that shows both files / all files: more options of black reduced files
-                return redirect(url_for('upload_file', result=filename))
+                return redirect(url_for('upload_file', result=filename, payload={'file':file}))
             else:
                 filename = secure_filename(file.filename)
-                return render_template('wrong_file.html', result=filename)
+                return render_template('wrong_file.html', result=filename)        
+        
+        # initial d
         return '''
         <!doctype html>
         <title>Upload new File</title>
