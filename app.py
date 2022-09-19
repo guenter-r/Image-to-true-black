@@ -1,8 +1,9 @@
-import os
-
+import os, uuid
 from flask import Flask, flash, request, redirect, url_for
-from flask import render_template
+from flask import render_template, send_from_directory
 from werkzeug.utils import secure_filename
+
+from scripts.true_black import true_black
 
 
 def create_app(test_config=None):
@@ -44,31 +45,31 @@ def create_app(test_config=None):
                 flash('No file part')
                 return redirect(request.url)
             file = request.files['file']
+            threshold = int(request.form.get('threshold'))
             # If the user does not select a file, the browser submits an
             # empty file without a filename.
             if file.filename == '':
                 flash('No selected file')
                 return redirect(request.url)
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
+                # filename = secure_filename(file.filename)
+                file_type = file.filename.rsplit('.', 1)[1].lower()
+                filename = str(uuid.uuid4()) + '.' + str(file_type)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                ## todo here:
-                # copy file saved above and pass it to the AMOLED function
-                # store this file
-                # render a site that shows both files / all files: more options of black reduced files
-                return redirect(url_for('upload_file', result=filename))
+                return render_template('success.html', filename=filename, threshold=threshold)
             else:
                 filename = secure_filename(file.filename)
-                return render_template('wrong_file.html', result=filename)
-        return '''
-        <!doctype html>
-        <title>Upload new File</title>
-        <h1>Upload new File</h1>
-        <form method=post enctype=multipart/form-data>
-        <input type=file name=file>
-        <input type=submit value=Upload>
-        </form>
-        '''
-        # return render_template('img.html')
+                return render_template('wrong_file.html', result=filename)        
+        
+        return render_template('index.html')
+        
+    @app.route('/<filename>/<threshold>', methods=['GET'])
+    def show_image(filename, threshold):
+        new_file_name = true_black(app.config['UPLOAD_FOLDER'], filename, threshold)
+        return send_from_directory(app.config['UPLOAD_FOLDER'], new_file_name)
+    
+    @app.route('/test')
+    def test():
+        return '<h1>test</h1>'
 
     return app
