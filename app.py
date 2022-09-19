@@ -63,13 +63,13 @@ def create_app(test_config=None):
         
         return render_template('index.html')
         
-    @app.route('/<filename>/<threshold>', methods=['GET'])
+    @app.route('/<filename>/<threshold>/success', methods=['GET'])
     def show_image(filename, threshold):
         new_file_name = true_black(app.config['UPLOAD_FOLDER'], filename, threshold)
         return send_from_directory(app.config['UPLOAD_FOLDER'], new_file_name)
     
-    @app.route('/test')
-    def test():
-        return '<h1>test</h1>'
+    # @app.route('/test')
+    # def test():
+    #     return '<h1>test</h1>'
 
     return app
