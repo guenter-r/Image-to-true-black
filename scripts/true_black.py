@@ -13,7 +13,9 @@ def true_black(path, file_name, threshold = 25):
     filter = new[:,:] < int(threshold)
     new[:,:][filter] = 0
 
+    ftype = name.split('.')[-1]
     name = name.split('.')[0]
-    new_name = f'{name}_black.jpg'
+    
+    new_name = f'{name}_black.{ftype}'
     plt.imsave(os.path.join(path, new_name), new)
     return new_name
